@@ -23,10 +23,12 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var viewPagerAdapter: ViewPagerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        //Создание страницы
         super.onCreate(savedInstanceState)
         binding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //Инициализируем firebase индификатор
         firebaseAuth = FirebaseAuth.getInstance()
         checkUser()
 
@@ -41,25 +43,25 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
+    // функция создает такого "помощника" (адаптер) и настраивает его для листалки
     private fun setupWithViewPagerAdapter(viewPager: ViewPager){
         viewPagerAdapter = ViewPagerAdapter(
-            supportFragmentManager,
-            FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT,
-            this
+            supportFragmentManager, // Это менеджер, который управляет экранами
+            FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT, // Оптимизация: работает только текущий экран
+            this // Это ссылка на текущую активность (экран приложения)
         )
 
         //init list
         categoryArrayList = ArrayList()
 
-        //load categories from db
+        // Загружаем категории
         val ref = FirebaseDatabase.getInstance().getReference("Categories")
         ref.addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
-                //clear list
+                // Очищаем список
                 categoryArrayList.clear()
 
-                //load some static categories e.g. All, Most viewed, Most downloaded
-                //add data to models
+               // Загрузка статических категорий:
                 val modelAll = ModelCategory("01", "All", 1, "")
                 val modelMostViewed = ModelCategory("01", "Most Viewed", 1, "")
                 val modelMostDownloaded = ModelCategory("01", "Most Downloaded", 1, "")
@@ -67,7 +69,8 @@ class DashboardActivity : AppCompatActivity() {
                 categoryArrayList.add(modelAll)
                 categoryArrayList.add(modelMostViewed)
                 categoryArrayList.add(modelMostDownloaded)
-                //add to viewPagerAdapter
+
+                //Для каждой категории создается экран (BooksUserFragment) и добавляется в адаптер.
                 viewPagerAdapter.addFragment(
                     BooksUserFragment.newInstance(
                         "${modelAll.id}",
@@ -90,10 +93,10 @@ class DashboardActivity : AppCompatActivity() {
                     ),modelMostDownloaded.category
                 )
 
-                //refresh list
+                //Обновляем адаптер
                 viewPagerAdapter.notifyDataSetChanged()
 
-                //now load from firebase db
+                // Проходимся по категориям в бд и добавляеем их
                 for (ds in snapshot.children){
                     //get data
                     val model = ds.getValue(ModelCategory::class.java)
@@ -120,15 +123,15 @@ class DashboardActivity : AppCompatActivity() {
 
         })
 
-        //setup adapter to viewpager
+        //Адаптер передается в листалку (ViewPager), чтобы она знала, какие экраны показывать.
         viewPager.adapter = viewPagerAdapter
 
     }
 
-    class ViewPagerAdapter(fm: FragmentManager, behavior:Int, context: Context):FragmentPagerAdapter(fm, behavior){
-        //holds list of fragment i.e. new instances of same fragment for each category
+    class ViewPagerAdapter (fm: FragmentManager, behavior:Int, context: Context):FragmentPagerAdapter(fm, behavior){
+        // Это список экранов (фрагментов). Каждый экран — это отдельная "страничка", которую можно листать.
         private val fragmentList: ArrayList<BooksUserFragment> = ArrayList()
-        //list of titles of categories, for tabs
+        //Это список названий для этих экранов. Эти названия будут отображаться на вкладках (если они есть).
         private val fragmentTitleList: ArrayList<String> = ArrayList()
 
         private val context : Context
@@ -141,14 +144,17 @@ class DashboardActivity : AppCompatActivity() {
             return fragmentList.size
         }
 
+        // Возвращает экран (фрагмент) для конкретной позиции.
         override fun getItem(position: Int): Fragment {
             return fragmentList[position]
         }
 
+        // Возвращает название для вкладки
         override fun getPageTitle(position: Int): CharSequence{
             return fragmentTitleList[position]
         }
 
+        // функция добавляет новый экран и его название в списки:
         public fun addFragment (fragment: BooksUserFragment, title : String){
             //add fragment that will be passed as parameter in fragmentList
             fragmentList.add(fragment)

@@ -13,6 +13,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
+// Класс для входа в аккаунт
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
@@ -51,6 +52,7 @@ class LoginActivity : AppCompatActivity() {
         email = binding.emailEt.text.toString().trim()
         password = binding.passwordEt.text.toString().trim()
 
+        // Проверка корректности введеной почты и пароля
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             Toast.makeText(this, "Invalid Email format...", Toast.LENGTH_SHORT).show()
         } else if (password.isEmpty()) {
@@ -65,6 +67,7 @@ class LoginActivity : AppCompatActivity() {
         progressDialog.setMessage("Loggin In...")
         progressDialog.show()
 
+        // Проверяем совпадает ли логин и пароль
         firebaseAuth.signInWithEmailAndPassword(email,password)
             .addOnSuccessListener {
                 //Логин выполнен
@@ -80,9 +83,9 @@ class LoginActivity : AppCompatActivity() {
     private fun checkUser() {
         progressDialog.setMessage("Checking User...")
 
-        val firebaseUser = firebaseAuth.currentUser //????
+        val firebaseUser = firebaseAuth.currentUser
 
-        val ref = FirebaseDatabase.getInstance().getReference("Users") //????
+        val ref = FirebaseDatabase.getInstance().getReference("Users")
         ref.child(firebaseUser!!.uid)
             .addListenerForSingleValueEvent(object : ValueEventListener{ //?????
 

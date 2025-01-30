@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.ebook1.databinding.ActivityMainBinding
 
+// Класс входа в аккаунт или пропуска входа
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding:ActivityMainBinding
